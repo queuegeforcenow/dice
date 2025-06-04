@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Dice Game - Stake風</title>
+  <style>
+    body { font-family: sans-serif; background: #121212; color: #fff; text-align: center; padding: 20px; }
+    button { margin: 5px; padding: 10px 20px; font-size: 16px; }
+    input { padding: 5px; margin: 5px; font-size: 16px; width: 100px; }
+  </style>
+</head>
+<body>
+  <h1>🎲 Dice Game - Stake風</h1>
+
+  <div>
+    所持金: <span id="balance">0</span> 円<br>
+    銀行: <span id="bank">0</span> 円
+  </div>
+
+  <div style="margin-top:20px;">
+    <input type="number" id="bet" value="100" min="1" max="10000000"> 円を賭ける
+    <button onclick="playDice()">🎲 プレイ</button>
+  </div>
+
+  <div style="margin-top:20px;">
+    <button onclick="work()" id="workBtn">💼 WORK</button><br>
+    <small id="cooldownInfo"></small>
+  </div>
+
+  <div style="margin-top:20px;">
+    <input type="number" id="amount" value="0">
+    <button onclick="deposit()">銀行に預ける</button>
+    <button onclick="withdraw()">引き出す</button>
+  </div>
+
+  <script>
+    const balanceEl = document.getElementById('balance');
+    const bankEl = document.getElementById('bank');
+    const workBtn = document.getElementById('workBtn');
+    const cooldownInfo = document.getElementById('cooldownInfo');
+
+    function getCookie(name) {
+      const value = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+      return value ? parseInt(value.pop()) : 0;
+    }
+
+    function setCookie(name, value, days = 365) {
+      const date = new Date();
+      date.setTime(date.getTime() + (days*24*60*60*1000));
+      document.cookie = `${name}=${value}; expires=${date.toUTCString()}; path=/`;
+    }
+
+    function updateDisplay() {
+      balanceEl.textContent = getCookie('balance');
+      bankEl.textContent = getCookie('bank');
+    }
+
+    function playDice() {
+      let bet = parseInt(document.getElementById('bet').value);
+      let balance = getCookie('balance');
+
+      if (bet < 1 || bet > 10000000) {
+        alert("賭け金は1円以上1000万円以下です。");
+        return;
+      }
+
+      if (balance < bet) {
+        alert("所持金が足りません！");
+        return;
+      }
+
+      const win = Math.random() < 0.49; // 49% 勝率
+      if (win) {
+        balance += bet;
+        alert("勝ちました！ +" + bet + "円");
+      } else {
+        balance -= bet;
+        alert("負けました... -" + bet + "円");
+      }
+
+      setCookie('balance', balance);
+      updateDisplay();
+    }
+
+    function work() {
+      const lastWork = parseInt(getCookie('lastWork') || 0);
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000;
+
+      if (now - lastWork < oneHour) {
+        const wait = Math.ceil((oneHour - (now - lastWork)) / 60000);
+        alert("WORKはあと " + wait + " 分で利用可能です。");
+        return;
+      }
+
+      workBtn.disabled = true;
+      cooldownInfo.textContent = "作業中...";
+
+      setTimeout(() => {
+        const earn = Math.floor(Math.random() * (5000 - 200 + 1)) + 200;
+        let balance = getCookie('balance') + earn;
+
+        setCookie('balance', balance);
+        setCookie('lastWork', Date.now());
+        updateDisplay();
+        workBtn.disabled = false;
+        cooldownInfo.textContent = "";
+        alert("作業完了！ +" + earn + "円");
+      }, Math.random() * 3000 + 2000); // 2〜5秒ランダム
+    }
+
+    function deposit() {
+      let amount = parseInt(document.getElementById('amount').value);
+      let balance = getCookie('balance');
+      let bank = getCookie('bank');
+
+      if (amount > 0 && amount <= balance) {
+        balance -= amount;
+        bank += amount;
+        setCookie('balance', balance);
+        setCookie('bank', bank);
+        updateDisplay();
+      } else {
+        alert("所持金が足りません。");
+      }
+    }
+
+    function withdraw() {
+      let amount = parseInt(document.getElementById('amount').value);
+      let balance = getCookie('balance');
+      let bank = getCookie('bank');
+
+      if (amount > 0 && amount <= bank) {
+        bank -= amount;
+        balance += amount;
+        setCookie('balance', balance);
+        setCookie('bank', bank);
+        updateDisplay();
+      } else {
+        alert("銀行残高が足りません。");
+      }
+    }
+
+    function updateCooldownInfo() {
+      const lastWork = parseInt(getCookie('lastWork') || 0);
+      const now = Date.now();
+      const oneHour = 60 * 60 * 1000;
+
+      if (now - lastWork < oneHour) {
+        workBtn.disabled = false;
+      }
+    }
+
+    // 初期化
+    if (!getCookie('balance')) setCookie('balance', 1000);
+    if (!getCookie('bank')) setCookie('bank', 0);
+    updateDisplay();
+    updateCooldownInfo();
+  </script>
+</body>
+</html>
