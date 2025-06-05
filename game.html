@@ -1,53 +1,33 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Stake風ダイスゲーム - ゲーム</title>
-<link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <title>DICE ゲーム</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header>
-  <nav>
-    <a href="game.html">ゲーム</a> |
-    <a href="profile.html">プロフィール</a> |
-    <a href="index.html" id="logoutLink">ログアウト</a>
+  <h1>DICE ゲーム</h1>
+  <div>
+    チップ: <span id="chipsDisplay"></span>
+    <button id="workBtn">Work</button>
+    <span id="workMsg"></span>
+  </div>
+  <div>
+    掛け金: <input type="number" id="betAmount" min="1">
+    <button id="maxBetBtn">最高ベット</button>
+  </div>
+  <div>
+    倍率(1.0102～9900): <input type="number" step="0.01" id="targetMultiplier" value="2">
+  </div>
+  <button id="rollDiceBtn">ロール</button>
+  <p id="gameResult"></p>
+  <canvas id="diceCanvas" width="200" height="200"></canvas>
+  <h3>ランキング</h3>
+  <ul id="rankingList"></ul>
+  <div>
+    <a href="profile.html">プロフィール</a>
     <span id="adminLinkContainer"></span>
-  </nav>
-</header>
-<main class="container">
-  <h1>ダイスゲーム</h1>
-  <section id="workSection">
-    <button id="workBtn">Work (1時間に1回)</button>
-    <p id="workMsg"></p>
-  </section>
-
-  <section id="balanceSection">
-    <p>所持チップ: <span id="chipsDisplay">0</span> チップ</p>
-  </section>
-
-  <section id="diceGameSection">
-    <label>掛け金（チップ）:<br />
-      <input type="number" id="betAmount" min="1" value="1000" />
-      <button id="maxBetBtn">最高ベット</button>
-    </label><br />
-    <label>狙う倍率（1.0102 ～ 9900）:<br />
-      <input type="number" step="0.0001" id="targetMultiplier" min="1.0102" max="9900" value="2" />
-    </label><br />
-    <button id="rollDiceBtn">ダイスを振る</button>
-    <p id="gameResult"></p>
-  </section>
-
-  <section id="animationSection">
-    <canvas id="diceCanvas" width="200" height="200"></canvas>
-  </section>
-
-  <section id="rankingSection">
-    <h2>ユーザーランキング</h2>
-    <ol id="rankingList"></ol>
-  </section>
-</main>
-<script src="js/utils.js"></script>
-<script src="js/game.js"></script>
+  </div>
+  <script type="module" src="js/game.js"></script>
 </body>
 </html>
