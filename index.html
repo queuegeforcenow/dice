@@ -1,59 +1,388 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Stake風ダイスゲーム</title>
-<link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8" />
+  <title>Stake風ダイスゲーム 完全版</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #111;
+      color: #eee;
+    }
+    h1, h2 {
+      text-align: center;
+    }
+    input, button {
+      font-size: 16px;
+      margin: 5px 0;
+      padding: 8px;
+      width: 100%;
+      max-width: 300px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 5px;
+      border: none;
+    }
+    button {
+      cursor: pointer;
+      background: #007bff;
+      color: white;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    button:hover:not(:disabled) {
+      background: #0056b3;
+    }
+    button:disabled {
+      background: #555;
+      cursor: default;
+    }
+    .hidden {
+      display: none;
+    }
+    nav {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    nav button {
+      width: auto;
+      margin: 0 10px;
+      padding: 10px 15px;
+      font-weight: normal;
+    }
+    #diceCanvas {
+      display: block;
+      margin: 0 auto;
+      background: #222;
+      border-radius: 15px;
+      box-shadow: 0 0 20px #007bff;
+    }
+    .chip {
+      font-weight: bold;
+      color: #0f0;
+    }
+    .error {
+      color: #f33;
+      text-align: center;
+      margin: 10px 0;
+    }
+    .success {
+      color: #0f0;
+      text-align: center;
+      margin: 10px 0;
+    }
+    table {
+      margin: 0 auto;
+      border-collapse: collapse;
+      width: 90%;
+      max-width: 600px;
+    }
+    table, th, td {
+      border: 1px solid #666;
+    }
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+    .rank-bronze { color: #cd7f32; }
+    .rank-silver { color: #c0c0c0; }
+    .rank-gold { color: #ffd700; }
+    .rank-platinum { color: #e5e4e2; }
+    .rank-diamond { color: #b9f2ff; }
+  </style>
 </head>
 <body>
 
-<div id="login-screen" class="screen">
-  <h2>ログイン</h2>
-  <input id="username" placeholder="ユーザー名" />
-  <input id="password" type="password" placeholder="パスワード" />
-  <button id="login-btn">ログイン</button>
-  <p id="login-error" class="error"></p>
+<h1>Stake風ダイスゲーム 完全版</h1>
+
+<nav id="navBar" class="hidden">
+  <button data-page="game">ゲーム</button>
+  <button data-page="profile">プロフィール</button>
+  <button data-page="ranking">ランキング</button>
+  <button data-page="admin" id="adminNavBtn" class="hidden">管理者</button>
+  <button id="logoutBtn">ログアウト</button>
+</nav>
+
+<div id="loginPage">
+  <h2>ログイン / 新規登録</h2>
+  <input id="loginUsername" placeholder="ユーザー名(半角英数字)" autocomplete="off" />
+  <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="new-password" />
+  <button id="loginBtn">ログイン</button>
+  <button id="registerBtn">新規登録</button>
+  <p id="loginMsg" class="error"></p>
 </div>
 
-<div id="game-screen" class="screen hidden">
-  <h1>Stake風ダイスゲーム</h1>
-  <p>ユーザー: <span id="display-username"></span> <span id="admin-indicator" class="admin hidden">👑 管理者</span></p>
-  <p>残高: ¥<span id="balance">0</span> バンク: ¥<span id="bank-balance">0</span></p>
-  <button id="work-btn">Work (1時間毎)</button>
+<div id="gamePage" class="hidden">
+  <h2>ゲーム画面</h2>
+  <p>ようこそ、<span id="gameUsername"></span> さん</p>
+  <p>所持チップ: <span class="chip" id="gameChips">0</span> 円</p>
+  <button id="workBtn">Workしてチップをもらう（1時間に1回）</button>
+  <p id="workMsg" class="success"></p>
 
-  <div id="dice-section">
-    <div id="dice-container">
-      <div id="dice" class="dice-face">🎲</div>
-    </div>
-    <label>目標(%) <input type="number" id="target" min="1" max="99" value="50" /></label>
-    <label>ベット額(¥) <input type="number" id="bet-amount" min="1" value="10" /></label>
-    <button id="max-bet-btn">最高ベット</button>
-    <button id="roll-btn">サイコロを振る</button>
-    <p id="roll-result"></p>
-  </div>
-
-  <div id="tip-section">
-    <h3>チップ送金</h3>
-    <input id="tip-to" placeholder="送信先ユーザー名" />
-    <input type="number" id="tip-amount" placeholder="金額" min="1" />
-    <button id="send-tip-btn">送金</button>
-    <p id="tip-result"></p>
-  </div>
-
-  <div id="history-section">
-    <h3>ゲーム履歴</h3>
-    <ul id="history-list"></ul>
-  </div>
-
-  <div id="leaderboard-section">
-    <h3>ランキング</h3>
-    <ol id="leaderboard"></ol>
-  </div>
-
-  <button id="logout-btn">ログアウト</button>
+  <h3>ダイスゲーム</h3>
+  <canvas id="diceCanvas" width="200" height="200"></canvas>
+  <p>掛け金: <input type="number" id="betAmount" value="1000" min="200" max="10000000" step="100" style="width:150px; margin: 0 5px;" /> 円</p>
+  <button id="maxBetBtn">最高ベット</button>
+  <button id="rollDiceBtn">ロール！</button>
+  <p id="diceResult" style="font-weight:bold; text-align:center; font-size:18px;"></p>
+  <p id="gameMsg" class="success"></p>
 </div>
 
-<script src="script.js"></script>
-</body>
-</html>
+<div id="profilePage" class="hidden">
+  <h2>プロフィール</h2>
+  <p>ユーザー名: <span id="profileUsername"></span></p>
+  <p>ユーザーID: <span id="profileUserId"></span></p>
+  <p>所持チップ: <span class="chip" id="profileChips"></span> 円</p>
+  <p>ランク: <span id="profileRank" style="font-weight:bold;"></span></p>
+  <h3>チップ送金</h3>
+  <input id="sendToUserId" placeholder="送金先ユーザーID" />
+  <input id="sendAmount" type="number" placeholder="送金額" min="1" />
+  <button id="sendChipBtn">送金する</button>
+  <p id="sendMsg" class="error"></p>
+</div>
+
+<div id="rankingPage" class="hidden">
+  <h2>ランキング</h2>
+  <table>
+    <thead>
+      <tr><th>順位</th><th>ユーザー名</th><th>所持チップ</th><th>ランク</th></tr>
+    </thead>
+    <tbody id="rankingTableBody"></tbody>
+  </table>
+</div>
+
+<div id="adminPage" class="hidden">
+  <h2>管理者ページ</h2>
+  <p>※管理者のみアクセス可能</p>
+  <h3>ユーザー一覧</h3>
+  <table>
+    <thead>
+      <tr><th>ユーザー名</th><th>所持チップ</th><th>ランク</th><th>累計掛け金</th></tr>
+    </thead>
+    <tbody id="adminUserTableBody"></tbody>
+  </table>
+  <button id="adminResetWorkBtn">全ユーザーのWork時間リセット</button>
+</div>
+
+<script>
+(() => {
+  'use strict';
+
+  // ----- 定数 -----
+
+  const STORAGE_USERS = "stake_users_v2";
+  const STORAGE_LOGIN = "stake_login_v2";
+
+  // ランク定義（掛け金累計とボーナス）
+  const RANKS = [
+    { name:"なし", min:0, bonus:0, class:"" },
+    { name:"ブロンズ", min:100000, bonus:4000, class:"rank-bronze" },
+    { name:"シルバー", min:1000000, bonus:10000, class:"rank-silver" },
+    { name:"ゴールド", min:5000000, bonus:50000, class:"rank-gold" },
+    { name:"プラチナ1", min:10000000, bonus:100000, class:"rank-platinum" },
+    { name:"プラチナ2", min:20000000, bonus:200000, class:"rank-platinum" },
+    { name:"プラチナ3", min:30000000, bonus:300000, class:"rank-platinum" },
+    { name:"プラチナ4", min:50000000, bonus:500000, class:"rank-platinum" },
+    { name:"プラチナ5", min:70000000, bonus:700000, class:"rank-platinum" },
+    { name:"ダイヤモンド1", min:100000000, bonus:1000000, class:"rank-diamond" },
+    { name:"ダイヤモンド2", min:200000000, bonus:2000000, class:"rank-diamond" },
+    { name:"ダイヤモンド3", min:300000000, bonus:3000000, class:"rank-diamond" },
+    { name:"ダイヤモンド4", min:400000000, bonus:4000000, class:"rank-diamond" },
+    { name:"ダイヤモンド5", min:500000000, bonus:5000000, class:"rank-diamond" }
+  ];
+
+  // 管理者IDリスト（admin.jsonの代わり）
+  const ADMIN_USERS = ["admin", "superuser"];
+
+  // ----- DOM -----
+
+  const pages = {
+    login: document.getElementById("loginPage"),
+    game: document.getElementById("gamePage"),
+    profile: document.getElementById("profilePage"),
+    ranking: document.getElementById("rankingPage"),
+    admin: document.getElementById("adminPage"),
+  };
+  const navBar = document.getElementById("navBar");
+  const navButtons = navBar.querySelectorAll("button[data-page]");
+  const adminNavBtn = document.getElementById("adminNavBtn");
+  const logoutBtn = document.getElementById("logoutBtn");
+
+  // login page
+  const loginUsername = document.getElementById("loginUsername");
+  const loginPassword = document.getElementById("loginPassword");
+  const loginBtn = document.getElementById("loginBtn");
+  const registerBtn = document.getElementById("registerBtn");
+  const loginMsg = document.getElementById("loginMsg");
+
+  // game page
+  const gameUsername = document.getElementById("gameUsername");
+  const gameChips = document.getElementById("gameChips");
+  const workBtn = document.getElementById("workBtn");
+  const workMsg = document.getElementById("workMsg");
+
+  const diceCanvas = document.getElementById("diceCanvas");
+  const diceCtx = diceCanvas.getContext("2d");
+  const betAmount = document.getElementById("betAmount");
+  const maxBetBtn = document.getElementById("maxBetBtn");
+  const rollDiceBtn = document.getElementById("rollDiceBtn");
+  const diceResult = document.getElementById("diceResult");
+  const gameMsg = document.getElementById("gameMsg");
+
+  // profile page
+  const profileUsername = document.getElementById("profileUsername");
+  const profileUserId = document.getElementById("profileUserId");
+  const profileChips = document.getElementById("profileChips");
+  const profileRank = document.getElementById("profileRank");
+  const sendToUserId = document.getElementById("sendToUserId");
+  const sendAmount = document.getElementById("sendAmount");
+  const sendChipBtn = document.getElementById("sendChipBtn");
+  const sendMsg = document.getElementById("sendMsg");
+
+  // ranking page
+  const rankingTableBody = document.getElementById("rankingTableBody");
+
+  // admin page
+  const adminUserTableBody = document.getElementById("adminUserTableBody");
+  const adminResetWorkBtn = document.getElementById("adminResetWorkBtn");
+
+  // ----- ユーティリティ -----
+
+  // 簡単なハッシュ関数(安全性は低いが静的環境なので妥協)
+  function simpleHash(str) {
+    let hash = 0;
+    for(let i=0; i<str.length; i++){
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0;
+    }
+    return hash.toString();
+  }
+
+  // localStorageからユーザー一覧取得
+  function loadUsers() {
+    const d = localStorage.getItem(STORAGE_USERS);
+    if(!d) return [];
+    try {
+      return JSON.parse(d);
+    } catch {
+      return [];
+    }
+  }
+
+  // localStorageにユーザー一覧保存
+  function saveUsers(users) {
+    localStorage.setItem(STORAGE_USERS, JSON.stringify(users));
+  }
+
+  // ログイン中ユーザー名保存
+  function setCurrentUser(username) {
+    localStorage.setItem(STORAGE_LOGIN, username);
+  }
+
+  // ログイン中ユーザー名取得
+  function getCurrentUser() {
+    return localStorage.getItem(STORAGE_LOGIN);
+  }
+
+  // ログイン中ユーザー名削除
+  function clearCurrentUser() {
+    localStorage.removeItem(STORAGE_LOGIN);
+  }
+
+  // ユーザーをusernameで取得
+  function getUser(username) {
+    const users = loadUsers();
+    return users.find(u => u.username === username);
+  }
+
+  // ユーザー情報を更新保存
+  function updateUser(user) {
+    const users = loadUsers();
+    const idx = users.findIndex(u => u.username === user.username);
+    if(idx >= 0) users[idx] = user;
+    else users.push(user);
+    saveUsers(users);
+  }
+
+  // ユーザーの累計掛け金に応じてランク判定してボーナス付与も行う
+  function updateUserRank(user) {
+    let newRank = RANKS[0]; // なし
+    for(const rank of RANKS){
+      if(user.totalBet >= rank.min) newRank = rank;
+      else break;
+    }
+    if(user.rank !== newRank.name){
+      // ランクアップ時ボーナス付与
+      if(user.rank && user.rank !== "" && newRank.bonus > 0){
+        user.chips += newRank.bonus;
+      }
+      user.rank = newRank.name;
+      user.rankClass = newRank.class;
+      updateUser(user);
+      return true;
+    }
+    return false;
+  }
+
+  // 管理者判定
+  function isAdmin(username) {
+    return ADMIN_USERS.includes(username);
+  }
+
+  // ページ表示切替
+  function showPage(page) {
+    for(const key in pages) {
+      pages[key].classList.add("hidden");
+    }
+    if(pages[page]) pages[page].classList.remove("hidden");
+
+    // nav表示切替
+    if(page === "login") {
+      navBar.classList.add("hidden");
+    } else {
+      navBar.classList.remove("hidden");
+      // 管理者ボタン表示
+      if(isAdmin(getCurrentUser())){
+        adminNavBtn.classList.remove("hidden");
+      } else {
+        adminNavBtn.classList.add("hidden");
+      }
+    }
+  }
+
+  // ナビゲーションボタン処理
+  navButtons.forEach(btn => {
+    btn.onclick = () => {
+      const page = btn.getAttribute("data-page");
+      showPage(page);
+      if(page === "game") renderGamePage();
+      if(page === "profile") renderProfilePage();
+      if(page === "ranking") renderRankingPage();
+      if(page === "admin") renderAdminPage();
+    };
+  });
+
+  // ログアウト処理
+  logoutBtn.onclick = () => {
+    clearCurrentUser();
+    showPage("login");
+  };
+
+  // 新規登録処理
+  registerBtn.onclick = () => {
+    const username = loginUsername.value.trim();
+    const password = loginPassword.value;
+    if(!username.match(/^[a-zA-Z0-9]+$/)){
+      loginMsg.textContent = "ユーザー名は半角英数字のみです。";
+      return;
+    }
+    if(password.length < 4){
+      loginMsg.textContent = "パスワードは4文字以上にしてください。";
+      return;
+    }
+    if(getUser(username)){
+      loginMsg.textContent = "そのユーザー
