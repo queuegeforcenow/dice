@@ -1,89 +1,72 @@
 body {
-  font-family: "Helvetica Neue", Arial, sans-serif;
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 20px;
-  background: #111;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #121212;
   color: #eee;
+  margin: 0;
+  padding: 20px;
 }
 h1, h2 {
-  text-align: center;
-}
-input, button {
-  font-size: 16px;
-  margin: 5px 0;
-  padding: 8px;
-  width: 100%;
-  max-width: 300px;
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  border-radius: 5px;
-  border: none;
+  color: #FF7F50;
 }
 button {
-  cursor: pointer;
-  background: #007bff;
+  background: #FF7F50;
+  border: none;
   color: white;
-  font-weight: bold;
-  transition: background 0.3s ease;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin-top: 5px;
 }
-button:hover:not(:disabled) {
-  background: #0056b3;
+button:hover {
+  background: #ff6240;
 }
-button:disabled {
-  background: #555;
-  cursor: default;
+input[type="text"], input[type="password"], input[type="number"] {
+  padding: 6px;
+  margin: 5px 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  width: 100%;
+  box-sizing: border-box;
 }
-.hidden {
-  display: none;
-}
-nav {
-  text-align: center;
-  margin-bottom: 10px;
-}
-nav button {
-  width: auto;
-  margin: 0 10px;
-  padding: 10px 15px;
-  font-weight: normal;
-}
-#diceCanvas {
-  display: block;
-  margin: 0 auto;
-  background: #222;
-  border-radius: 15px;
-  box-shadow: 0 0 20px #007bff;
-}
-.chip {
-  font-weight: bold;
-  color: #0f0;
-}
-.error {
-  color: #f33;
-  text-align: center;
-  margin: 10px 0;
-}
-.success {
-  color: #0f0;
-  text-align: center;
-  margin: 10px 0;
-}
-table {
-  margin: 0 auto;
-  border-collapse: collapse;
-  width: 90%;
+#game-container {
   max-width: 600px;
+  margin: 20px auto;
+  background: #222;
+  padding: 20px;
+  border-radius: 10px;
 }
-table, th, td {
-  border: 1px solid #666;
+#admin-modal {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-th, td {
-  padding: 10px;
+#admin-content {
+  background: #333;
+  padding: 20px;
+  border-radius: 8px;
+  width: 300px;
+  color: white;
   text-align: center;
 }
-.rank-bronze { color: #cd7f32; }
-.rank-silver { color: #c0c0c0; }
-.rank-gold { color: #ffd700; }
-.rank-platinum { color: #e5e4e2; }
-.rank-diamond { color: #b9f2ff; }
+
+/* アニメーション - ダイス回転 */
+#dice-rolling {
+  display: inline-block;
+  width: 60px;
+  height: 60px;
+  margin-top: 10px;
+  border: 2px solid #ff7f50;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 24px;
+  line-height: 60px;
+  animation: roll 1.5s linear infinite;
+}
+
+@keyframes roll {
+  0% {transform: rotate(0deg);}
+  100% {transform: rotate(360deg);}
+}
