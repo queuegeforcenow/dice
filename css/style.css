@@ -1,84 +1,28 @@
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', sans-serif;
   background: #121212;
-  color: #eee;
-  margin: 0;
-  padding: 0;
-}
-
-.container {
-  max-width: 400px;
-  margin: 2em auto;
-  background: #1e1e1e;
+  color: #fff;
   padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 0 15px #0af;
 }
 
 input, button {
-  font-size: 1em;
+  margin: 5px;
+  padding: 8px;
   border-radius: 4px;
   border: none;
-  padding: 8px;
-  margin-top: 5px;
-  margin-bottom: 10px;
-  width: 100%;
-  box-sizing: border-box;
 }
 
 button {
-  background-color: #0af;
+  background-color: #28a745;
   color: white;
   cursor: pointer;
-  font-weight: bold;
 }
 
 button:hover {
-  background-color: #08c;
+  background-color: #218838;
 }
 
-a {
-  color: #0af;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
-}
-
-nav {
-  background: #111;
-  padding: 10px;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-nav a {
-  color: #0af;
-  margin: 0 10px;
-  font-weight: bold;
-}
-
-h1, h2 {
-  color: #0af;
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-#gameResult, #workMsg, #sendMsg {
-  text-align: center;
-  font-weight: bold;
-  margin-top: 10px;
-}
-
-#rankingList {
-  list-style: decimal;
-  padding-left: 20px;
-}
-
-#diceCanvas {
-  display: block;
-  margin: 1em auto;
+canvas {
   background: #222;
-  border-radius: 10px;
+  margin-top: 10px;
 }
