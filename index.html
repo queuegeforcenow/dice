@@ -1,83 +1,93 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <title>Stake風ダイスゲーム</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DICEゲーム - Stake風</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>Stake風ダイスゲーム 完全版</h1>
-
-<nav id="navBar" class="hidden">
-  <button data-page="game">ゲーム</button>
-  <button data-page="profile">プロフィール</button>
-  <button data-page="ranking">ランキング</button>
-  <button data-page="admin" id="adminNavBtn" class="hidden">管理者</button>
-  <button id="logoutBtn">ログアウト</button>
-</nav>
-
-<div id="loginPage">
-  <h2>ログイン / 新規登録</h2>
-  <input id="loginUsername" placeholder="ユーザー名(半角英数字)" autocomplete="off" />
-  <input id="loginPassword" type="password" placeholder="パスワード" autocomplete="new-password" />
-  <button id="loginBtn">ログイン</button>
-  <button id="registerBtn">新規登録</button>
-  <p id="loginMsg" class="error"></p>
+<div id="login-container">
+  <h2>ログイン</h2>
+  <form id="login-form">
+    <label>ユーザー名:<br />
+      <input type="text" id="username" required />
+    </label><br/>
+    <label>パスワード:<br />
+      <input type="password" id="password" required />
+    </label><br/>
+    <button type="submit">ログイン</button>
+  </form>
+  <p>新規作成は<a href="#" id="show-register">こちら</a></p>
 </div>
 
-<div id="gamePage" class="hidden">
-  <h2>ゲーム画面</h2>
-  <p>ようこそ、<span id="gameUsername"></span> さん</p>
-  <p>所持チップ: <span class="chip" id="gameChips">0</span> 円</p>
-  <button id="workBtn">Workしてチップをもらう（1時間に1回）</button>
-  <p id="workMsg" class="success"></p>
-
-  <h3>ダイスゲーム</h3>
-  <canvas id="diceCanvas" width="200" height="200"></canvas>
-  <p>掛け金: <input type="number" id="betAmount" value="1000" min="200" max="10000000" step="100" style="width:150px; margin: 0 5px;" /> 円</p>
-  <button id="maxBetBtn">最高ベット</button>
-  <button id="rollDiceBtn">ロール！</button>
-  <p id="diceResult" style="font-weight:bold; text-align:center; font-size:18px;"></p>
-  <p id="gameMsg" class="success"></p>
+<div id="register-container" style="display:none;">
+  <h2>新規アカウント作成</h2>
+  <form id="register-form">
+    <label>ユーザー名:<br />
+      <input type="text" id="reg-username" required />
+    </label><br/>
+    <label>パスワード:<br />
+      <input type="password" id="reg-password" required />
+    </label><br/>
+    <button type="submit">作成</button>
+  </form>
+  <p><a href="#" id="show-login">ログイン画面へ</a></p>
 </div>
 
-<div id="profilePage" class="hidden">
-  <h2>プロフィール</h2>
-  <p>ユーザー名: <span id="profileUsername"></span></p>
-  <p>ユーザーID: <span id="profileUserId"></span></p>
-  <p>所持チップ: <span class="chip" id="profileChips"></span> 円</p>
-  <p>ランク: <span id="profileRank" style="font-weight:bold;"></span></p>
-  <h3>チップ送金</h3>
-  <input id="sendToUserId" placeholder="送金先ユーザーID" />
-  <input id="sendAmount" type="number" placeholder="送金額" min="1" />
-  <button id="sendChipBtn">送金する</button>
-  <p id="sendMsg" class="error"></p>
+<div id="game-container" style="display:none;">
+  <header>
+    <h1>DICEゲーム</h1>
+    <button id="logout-btn">ログアウト</button>
+  </header>
+
+  <section id="profile">
+    <h2>プロフィール</h2>
+    <p><b>ユーザー名:</b> <span id="profile-username"></span></p>
+    <p><b>ランク:</b> <span id="profile-rank"></span></p>
+    <p><b>チップ:</b> <span id="profile-chips"></span>円</p>
+    <p><b>ユーザーID:</b> <span id="profile-id"></span></p>
+  </section>
+
+  <section id="work-section">
+    <h2>Workでチップ獲得</h2>
+    <button id="work-btn">Work</button>
+    <p id="work-msg"></p>
+  </section>
+
+  <section id="dice-game">
+    <h2>ダイスゲーム</h2>
+    <label>倍率を選ぶ (1.0102～9900): <input type="number" id="bet-multiplier" min="1.0102" max="9900" step="0.01" value="2" /></label><br/>
+    <label>掛け金: <input type="number" id="bet-amount" min="1" value="1000" /></label><br/>
+    <button id="bet-btn">ベット</button>
+    <button id="max-bet-btn">最高ベット</button>
+    <p id="dice-result"></p>
+  </section>
+
+  <section id="ranking">
+    <h2>ユーザーランキング</h2>
+    <ul id="ranking-list"></ul>
+  </section>
+
+  <section id="send-chips">
+    <h2>チップ送金</h2>
+    <label>送金先ユーザーID: <input type="text" id="send-to-id" /></label><br/>
+    <label>送金額: <input type="number" id="send-amount" /></label><br/>
+    <button id="send-btn">送金</button>
+    <p id="send-msg"></p>
+  </section>
 </div>
 
-<div id="rankingPage" class="hidden">
-  <h2>ランキング</h2>
-  <table>
-    <thead>
-      <tr><th>順位</th><th>ユーザー名</th><th>所持チップ</th><th>ランク</th></tr>
-    </thead>
-    <tbody id="rankingTableBody"></tbody>
-  </table>
+<!-- 管理者モーダル -->
+<div id="admin-modal" style="display:none;">
+  <div id="admin-content">
+    <h2>管理者モード</h2>
+    <p>管理者権限の機能</p>
+    <button id="admin-close-btn">閉じる</button>
+  </div>
 </div>
 
-<div id="adminPage" class="hidden">
-  <h2>管理者ページ</h2>
-  <p>※管理者のみアクセス可能</p>
-  <h3>ユーザー一覧</h3>
-  <table>
-    <thead>
-      <tr><th>ユーザー名</th><th>所持チップ</th><th>ランク</th><th>累計掛け金</th></tr>
-    </thead>
-    <tbody id="adminUserTableBody"></tbody>
-  </table>
-  <button id="adminResetWorkBtn">全ユーザーのWork時間リセット</button>
-</div>
-
-<script src="script.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
