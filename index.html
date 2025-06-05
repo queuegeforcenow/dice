@@ -2,98 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8" />
-  <title>ダイスゲームv1.1</title>
-  <style>
-    body {
-      font-family: "Helvetica Neue", Arial, sans-serif;
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #111;
-      color: #eee;
-    }
-    h1, h2 {
-      text-align: center;
-    }
-    input, button {
-      font-size: 16px;
-      margin: 5px 0;
-      padding: 8px;
-      width: 100%;
-      max-width: 300px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-      border-radius: 5px;
-      border: none;
-    }
-    button {
-      cursor: pointer;
-      background: #007bff;
-      color: white;
-      font-weight: bold;
-      transition: background 0.3s ease;
-    }
-    button:hover:not(:disabled) {
-      background: #0056b3;
-    }
-    button:disabled {
-      background: #555;
-      cursor: default;
-    }
-    .hidden {
-      display: none;
-    }
-    nav {
-      text-align: center;
-      margin-bottom: 10px;
-    }
-    nav button {
-      width: auto;
-      margin: 0 10px;
-      padding: 10px 15px;
-      font-weight: normal;
-    }
-    #diceCanvas {
-      display: block;
-      margin: 0 auto;
-      background: #222;
-      border-radius: 15px;
-      box-shadow: 0 0 20px #007bff;
-    }
-    .chip {
-      font-weight: bold;
-      color: #0f0;
-    }
-    .error {
-      color: #f33;
-      text-align: center;
-      margin: 10px 0;
-    }
-    .success {
-      color: #0f0;
-      text-align: center;
-      margin: 10px 0;
-    }
-    table {
-      margin: 0 auto;
-      border-collapse: collapse;
-      width: 90%;
-      max-width: 600px;
-    }
-    table, th, td {
-      border: 1px solid #666;
-    }
-    th, td {
-      padding: 10px;
-      text-align: center;
-    }
-    .rank-bronze { color: #cd7f32; }
-    .rank-silver { color: #c0c0c0; }
-    .rank-gold { color: #ffd700; }
-    .rank-platinum { color: #e5e4e2; }
-    .rank-diamond { color: #b9f2ff; }
-  </style>
+  <title>Stake風ダイスゲーム</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
@@ -168,49 +78,6 @@
   <button id="adminResetWorkBtn">全ユーザーのWork時間リセット</button>
 </div>
 
-<script>
-(() => {
-  'use strict';
-
-  // ----- 定数 -----
-
-  const STORAGE_USERS = "stake_users_v2";
-  const STORAGE_LOGIN = "stake_login_v2";
-
-  // ランク定義（掛け金累計とボーナス）
-  const RANKS = [
-    { name:"なし", min:0, bonus:0, class:"" },
-    { name:"ブロンズ", min:100000, bonus:4000, class:"rank-bronze" },
-    { name:"シルバー", min:1000000, bonus:10000, class:"rank-silver" },
-    { name:"ゴールド", min:5000000, bonus:50000, class:"rank-gold" },
-    { name:"プラチナ1", min:10000000, bonus:100000, class:"rank-platinum" },
-    { name:"プラチナ2", min:20000000, bonus:200000, class:"rank-platinum" },
-    { name:"プラチナ3", min:30000000, bonus:300000, class:"rank-platinum" },
-    { name:"プラチナ4", min:50000000, bonus:500000, class:"rank-platinum" },
-    { name:"プラチナ5", min:70000000, bonus:700000, class:"rank-platinum" },
-    { name:"ダイヤモンド1", min:100000000, bonus:1000000, class:"rank-diamond" },
-    { name:"ダイヤモンド2", min:200000000, bonus:2000000, class:"rank-diamond" },
-    { name:"ダイヤモンド3", min:300000000, bonus:3000000, class:"rank-diamond" },
-    { name:"ダイヤモンド4", min:400000000, bonus:4000000, class:"rank-diamond" },
-    { name:"ダイヤモンド5", min:500000000, bonus:5000000, class:"rank-diamond" }
-  ];
-
-  // 管理者IDリスト（admin.jsonの代わり）
-  const ADMIN_USERS = ["admin", "superuser"];
-
-  // ----- DOM -----
-
-  const pages = {
-    login: document.getElementById("loginPage"),
-    game: document.getElementById("gamePage"),
-    profile: document.getElementById("profilePage"),
-    ranking: document.getElementById("rankingPage"),
-    admin: document.getElementById("adminPage"),
-  };
-  const navBar = document.getElementById("navBar");
-  const navButtons = navBar.querySelectorAll("button[data-page]");
-  const adminNavBtn = document.getElementById("adminNavBtn");
-  const logoutBtn = document.getElementById("logoutBtn");
-
-  // login page
-  const loginUsername = document.getElementById("loginUsername
+<script src="script.js"></script>
+</body>
+</html>
