@@ -1,39 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Stake風ダイスゲーム - プロフィール</title>
-<link rel="stylesheet" href="css/style.css" />
+  <meta charset="UTF-8">
+  <title>プロフィール</title>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<header>
-  <nav>
-    <a href="game.html">ゲーム</a> |
-    <a href="profile.html">プロフィール</a> |
-    <a href="index.html" id="logoutLink">ログアウト</a>
-  </nav>
-</header>
-<main class="container">
   <h1>プロフィール</h1>
-  <p><strong>ユーザー名:</strong> <span id="profileUsername"></span></p>
-  <p><strong>ユーザーID:</strong> <span id="profileUserId"></span></p>
-  <p><strong>ランク:</strong> <span id="profileRank"></span></p>
-  <p><strong>所持チップ:</strong> <span id="profileChips"></span> チップ</p>
+  <p>ユーザー名: <span id="profileName"></span></p>
+  <p>ID: <span id="profileID"></span></p>
+  <p>ランク: <span id="profileRank"></span></p>
+  <p>チップ: <span id="profileChips"></span></p>
 
-  <section id="sendChipsSection">
-    <h2>チップ送金</h2>
-    <label>送金先ユーザーID:<br />
-      <input type="text" id="sendToId" />
-    </label><br />
-    <label>送金チップ数:<br />
-      <input type="number" id="sendAmount" min="1" />
-    </label><br />
-    <button id="sendChipsBtn">送金</button>
-    <p id="sendMsg"></p>
-  </section>
-</main>
-<script src="js/utils.js"></script>
-<script src="js/profile.js"></script>
+  <h3>チップ送金</h3>
+  <form id="sendChipForm">
+    <input type="text" id="sendToID" placeholder="相手のID" required>
+    <input type="number" id="sendAmount" placeholder="金額" required>
+    <button type="submit">送金</button>
+  </form>
+
+  <a href="game.html">← 戻る</a>
+  <script type="module" src="js/profile.js"></script>
 </body>
 </html>
