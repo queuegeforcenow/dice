@@ -2,336 +2,58 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8" />
-<title>Stake風 Dice Game 拡張版</title>
-<style>
-  body {
-    background: #121212;
-    color: white;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    text-align: center;
-    padding: 20px;
-  }
-  input, button, select {
-    font-size: 16px;
-    margin: 5px;
-    padding: 8px;
-  }
-  #dice {
-    margin: 20px auto;
-    width: 100px; height: 100px;
-  }
-  #history {
-    max-height: 150px;
-    overflow-y: auto;
-    background: #222;
-    padding: 10px;
-    border-radius: 8px;
-    text-align: left;
-    margin: 20px auto;
-    width: 300px;
-    font-size: 14px;
-  }
-  #loginArea {
-    margin-bottom: 20px;
-  }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stake風ダイスゲーム</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<h1>🎲 Stake風 Dice Game 拡張版</h1>
-
-<div id="loginArea">
-  ユーザー名: <input type="text" id="usernameInput" placeholder="名前入力" />
-  <button onclick="login()">ログイン</button>
-  <div id="welcomeMsg" style="margin-top:10px;"></div>
+<div id="login-screen" class="screen">
+  <h2>ログイン</h2>
+  <input id="username" placeholder="ユーザー名" />
+  <input id="password" type="password" placeholder="パスワード" />
+  <button id="login-btn">ログイン</button>
+  <p id="login-error" class="error"></p>
 </div>
 
-<div id="gameArea" style="display:none;">
+<div id="game-screen" class="screen hidden">
+  <h1>Stake風ダイスゲーム</h1>
+  <p>ユーザー: <span id="display-username"></span> <span id="admin-indicator" class="admin hidden">👑 管理者</span></p>
+  <p>残高: ¥<span id="balance">0</span> バンク: ¥<span id="bank-balance">0</span></p>
+  <button id="work-btn">Work (1時間毎)</button>
 
-  <div>
-    所持金: <span id="balance">0</span> 円<br />
-    銀行: <span id="bank">0</span> 円
+  <div id="dice-section">
+    <div id="dice-container">
+      <div id="dice" class="dice-face">🎲</div>
+    </div>
+    <label>目標(%) <input type="number" id="target" min="1" max="99" value="50" /></label>
+    <label>ベット額(¥) <input type="number" id="bet-amount" min="1" value="10" /></label>
+    <button id="max-bet-btn">最高ベット</button>
+    <button id="roll-btn">サイコロを振る</button>
+    <p id="roll-result"></p>
   </div>
 
-  <div style="margin-top: 15px;">
-    <label>倍率:
-      <input type="number" id="multiplier" value="2" step="0.1" min="1" max="100" />
-    </label>
-    <label>勝率 (%):
-      <input type="number" id="winrate" value="49" step="0.1" min="1" max="99" />
-    </label>
+  <div id="tip-section">
+    <h3>チップ送金</h3>
+    <input id="tip-to" placeholder="送信先ユーザー名" />
+    <input type="number" id="tip-amount" placeholder="金額" min="1" />
+    <button id="send-tip-btn">送金</button>
+    <p id="tip-result"></p>
   </div>
 
-  <svg id="dice" viewBox="0 0 100 100">
-    <rect width="100" height="100" rx="15" ry="15" fill="#444" />
-    <!-- 点は後でJSで描画 -->
-  </svg>
-
-  <div style="margin-top: 10px;">
-    <input type="number" id="bet" value="100" min="1" max="10000000" />
-    円を賭ける（最大：<span id="maxBet">0</span>円）
-    <button onclick="playDice()">🎲 プレイ</button>
+  <div id="history-section">
+    <h3>ゲーム履歴</h3>
+    <ul id="history-list"></ul>
   </div>
 
-  <div style="margin-top: 20px;">
-    <button id="workBtn" onclick="work()">💼 WORK</button><br />
-    <small id="cooldownInfo"></small>
+  <div id="leaderboard-section">
+    <h3>ランキング</h3>
+    <ol id="leaderboard"></ol>
   </div>
 
-  <div style="margin-top: 20px;">
-    <input type="number" id="amount" value="0" />
-    <button onclick="deposit()">銀行に預ける</button>
-    <button onclick="withdraw()">引き出す</button>
-  </div>
-
-  <h3>プレイ履歴</h3>
-  <div id="history"></div>
-
+  <button id="logout-btn">ログアウト</button>
 </div>
 
-<script>
-  // Cookie操作関数
-  function getCookie(name) {
-    const value = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
-    return value ? decodeURIComponent(value.pop()) : null;
-  }
-
-  function setCookie(name, value, days = 365) {
-    const date = new Date();
-    date.setTime(date.getTime() + days*24*60*60*1000);
-    document.cookie = `${name}=${encodeURIComponent(value)}; expires=${date.toUTCString()}; path=/`;
-  }
-
-  // グローバル変数
-  let currentUser = null;
-  let data = {}; // ユーザー別データをオブジェクトで管理
-
-  // ユーザーデータのロード・保存
-  function loadUserData(username) {
-    const raw = getCookie('user_' + username);
-    if (raw) return JSON.parse(raw);
-    // 新規ユーザーの初期値
-    return {
-      balance: 1000,
-      bank: 0,
-      lastWork: 0,
-      history: []
-    };
-  }
-
-  function saveUserData() {
-    if (!currentUser) return;
-    setCookie('user_' + currentUser, JSON.stringify(data[currentUser]));
-  }
-
-  // UI 更新
-  function updateDisplay() {
-    if (!currentUser) return;
-
-    const userData = data[currentUser];
-
-    document.getElementById('balance').textContent = userData.balance;
-    document.getElementById('bank').textContent = userData.bank;
-
-    // 最大掛け金は所持金まで
-    document.getElementById('maxBet').textContent = userData.balance;
-
-    // BET入力値を制限内に
-    const betInput = document.getElementById('bet');
-    if (parseInt(betInput.value) > userData.balance) betInput.value = userData.balance;
-
-    // 履歴表示
-    const historyDiv = document.getElementById('history');
-    historyDiv.innerHTML = "";
-    if(userData.history.length === 0){
-      historyDiv.textContent = "まだプレイ履歴はありません。";
-    } else {
-      userData.history.slice().reverse().forEach(h => {
-        const el = document.createElement('div');
-        el.textContent = `${new Date(h.time).toLocaleString()} - 賭け金: ${h.bet}円 - ${h.result} - 残高: ${h.balance}円`;
-        historyDiv.appendChild(el);
-      });
-    }
-
-    updateCooldownInfo();
-    drawDice(null); // Reset dice display
-  }
-
-  // ログイン
-  function login() {
-    const input = document.getElementById('usernameInput');
-    let username = input.value.trim();
-    if (!username) {
-      alert("ユーザー名を入力してください");
-      return;
-    }
-    currentUser = username;
-    data[currentUser] = loadUserData(currentUser);
-
-    document.getElementById('welcomeMsg').textContent = `ようこそ、${currentUser}さん！`;
-    document.getElementById('loginArea').style.display = 'none';
-    document.getElementById('gameArea').style.display = 'block';
-
-    updateDisplay();
-  }
-
-  // ダイスの描画（サイコロの点）
-  function drawDice(number) {
-    const svg = document.getElementById('dice');
-    // クリア前の点
-    while(svg.lastChild && svg.lastChild.tagName === 'circle') {
-      svg.removeChild(svg.lastChild);
-    }
-    if (number == null) return;
-
-    // 点の位置を決める（100x100の正方形内）
-    const positions = {
-      1: [[50,50]],
-      2: [[25,25],[75,75]],
-      3: [[25,25],[50,50],[75,75]],
-      4: [[25,25],[25,75],[75,25],[75,75]],
-      5: [[25,25],[25,75],[50,50],[75,25],[75,75]],
-      6: [[25,25],[25,50],[25,75],[75,25],[75,50],[75,75]]
-    };
-
-    const pts = positions[number] || [];
-
-    pts.forEach(([x,y]) => {
-      const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-      c.setAttribute('cx', x);
-      c.setAttribute('cy', y);
-      c.setAttribute('r', 8);
-      c.setAttribute('fill', 'white');
-      svg.appendChild(c);
-    });
-  }
-
-  // プレイ処理
-  function playDice() {
-    if (!currentUser) return alert("ログインしてください");
-
-    let userData = data[currentUser];
-    let bet = parseInt(document.getElementById('bet').value);
-    const multiplier = parseFloat(document.getElementById('multiplier').value);
-    const winrate = parseFloat(document.getElementById('winrate').value);
-
-    if (isNaN(bet) || bet < 1) return alert("賭け金は1円以上を入力してください");
-    if (bet > userData.balance) return alert("所持金が足りません");
-    if (multiplier < 1 || multiplier > 100) return alert("倍率は1以上100以下で設定してください");
-    if (winrate <= 0 || winrate >= 100) return alert("勝率は0より大きく100未満で設定してください");
-
-    userData.balance -= bet;
-
-    // 勝敗判定
-    const roll = Math.random() * 100;
-    const win = roll < winrate;
-
-    // 結果表示用
-    let diceNumber = Math.floor(Math.random()*6) + 1; // ダイスの目（1-6）をランダム表示
-
-    drawDice(diceNumber);
-
-    if (win) {
-      const gain = Math.floor(bet * multiplier);
-      userData.balance += gain;
-      alert(`勝ちました！ 掛け金: ${bet}円, 配当: ${gain}円`);
-      userData.history.push({time: Date.now(), bet: bet, result: '勝ち', balance: userData.balance});
-    } else {
-      alert(`負けました... 掛け金: ${bet}円`);
-      userData.history.push({time: Date.now(), bet: bet, result: '負け', balance: userData.balance});
-    }
-
-    saveUserData();
-    updateDisplay();
-  }
-
-  // WORKボタン処理
-  function work() {
-    if (!currentUser) return alert("ログインしてください");
-
-    const userData = data[currentUser];
-    const now = Date.now();
-    const elapsed = now - userData.lastWork;
-    const oneHour = 60 * 60 * 1000;
-
-    if (elapsed < oneHour) {
-      const leftMin = Math.ceil((oneHour - elapsed) / 60000);
-      alert(`WORKはあと${leftMin}分で利用可能です。`);
-      return;
-    }
-
-    workBtn.disabled = true;
-    cooldownInfo.textContent = "作業中...";
-
-    // 2〜10秒ランダム待ち
-    const wait = Math.floor(Math.random() * (10000 - 2000 + 1)) + 2000;
-
-    setTimeout(() => {
-      const earn = Math.floor(Math.random() * (5000 - 200 + 1)) + 200;
-      userData.balance += earn;
-      userData.lastWork = Date.now();
-      alert(`作業完了！ +${earn}円`);
-      saveUserData();
-      updateDisplay();
-      workBtn.disabled = false;
-      cooldownInfo.textContent = "";
-    }, wait);
-  }
-
-  // 銀行預け入れ
-  function deposit() {
-    if (!currentUser) return alert("ログインしてください");
-
-    let amount = parseInt(document.getElementById('amount').value);
-    if (isNaN(amount) || amount <= 0) return alert("正しい金額を入力してください");
-
-    const userData = data[currentUser];
-    if (amount > userData.balance) return alert("所持金が足りません");
-
-    userData.balance -= amount;
-    userData.bank += amount;
-    saveUserData();
-    updateDisplay();
-  }
-
-  // 銀行引き出し
-  function withdraw() {
-    if (!currentUser) return alert("ログインしてください");
-
-    let amount = parseInt(document.getElementById('amount').value);
-    if (isNaN(amount) || amount <= 0) return alert("正しい金額を入力してください");
-
-    const userData = data[currentUser];
-    if (amount > userData.bank) return alert("銀行残高が足りません");
-
-    userData.bank -= amount;
-    userData.balance += amount;
-    saveUserData();
-    updateDisplay();
-  }
-
-  // WORKボタンのクールダウン表示更新
-  function updateCooldownInfo() {
-    if (!currentUser) return;
-    const userData = data[currentUser];
-    const now = Date.now();
-    const oneHour = 60 * 60 * 1000;
-    const elapsed = now - userData.lastWork;
-
-    if (elapsed >= oneHour) {
-      cooldownInfo.textContent = "WORKが利用可能です";
-      workBtn.disabled = false;
-    } else {
-      const leftSec = Math.ceil((oneHour - elapsed) / 1000);
-      cooldownInfo.textContent = `WORKまであと ${leftSec}秒`;
-      workBtn.disabled = true;
-
-      // 1秒ごとに更新
-      setTimeout(updateCooldownInfo, 1000);
-    }
-  }
-
-</script>
-
+<script src="script.js"></script>
 </body>
 </html>
