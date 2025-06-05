@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Stake風ダイスゲーム - 新規登録</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+<div class="container">
+  <h1>新規登録</h1>
+  <form id="registerForm">
+    <label>ユーザー名:<br />
+      <input type="text" id="newUsername" required />
+    </label><br />
+    <label>パスワード:<br />
+      <input type="password" id="newPassword" required />
+    </label><br />
+    <button type="submit">登録</button>
+  </form>
+  <p>すでにアカウントをお持ちの方は <a href="index.html">こちらからログイン</a></p>
+  <div id="registerMsg"></div>
+</div>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+</body>
+</html>
